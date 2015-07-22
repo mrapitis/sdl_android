@@ -94,22 +94,7 @@ public class RPCRequestFactory {
 		AddCommand msg = new AddCommand();
 		msg.setCorrelationID(correlationID);
 		msg.setCmdID(commandID);
-		
-		if (vrCommands != null) {
-			boolean isValid = true;
-			for (String item : vrCommands) {
-				if (item == null) {
-					msg.setVrCommands(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setVrCommands(vrCommands);
-			}
-		} else {
-			msg.setVrCommands(null);
-		}
-		
+		msg.setVrCommands(vrCommands);
 		
 		if (cmdIcon != null) msg.setCmdIcon(cmdIcon);
 		
@@ -131,20 +116,7 @@ public class RPCRequestFactory {
 		msg.setCorrelationID(correlationID);
 		msg.setCmdID(commandID);
 		
-		if (vrCommands != null) {
-			boolean isValid = true;
-			for (String item : vrCommands) {
-				if (item == null) {
-					msg.setVrCommands(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setVrCommands(vrCommands);
-			}
-		} else {
-			msg.setVrCommands(null);
-		}
+		if (vrCommands != null) msg.setVrCommands(vrCommands);
 		
 		Image cmdIcon = null;
 		
@@ -175,21 +147,7 @@ public class RPCRequestFactory {
 		AddCommand msg = new AddCommand();
 		msg.setCorrelationID(correlationID);
 		msg.setCmdID(commandID);
-		
-		if (vrCommands != null) {
-			boolean isValid = true;
-			for (String item : vrCommands) {
-				if (item == null) {
-					msg.setVrCommands(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setVrCommands(vrCommands);
-			}
-		} else {
-			msg.setVrCommands(null);
-		}
+		msg.setVrCommands(vrCommands);
 		
 		if(menuText != null || parentID != null || position != null) {
 			MenuParams menuParams = new MenuParams();
@@ -214,21 +172,7 @@ public class RPCRequestFactory {
 		AddCommand msg = new AddCommand();
 		msg.setCorrelationID(correlationID);
 		msg.setCmdID(commandID);
-		
-		if (vrCommands != null) {
-			boolean isValid = true;
-			for (String item : vrCommands) {
-				if (item == null) {
-					msg.setVrCommands(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setVrCommands(vrCommands);
-			}
-		} else {
-			msg.setVrCommands(null);
-		}
+		msg.setVrCommands(vrCommands);
 
 		return msg;
 	}
@@ -293,40 +237,14 @@ public class RPCRequestFactory {
 		msg.setAlertText3(alertText3);
 		msg.setDuration(duration);
 		msg.setPlayTone(playTone);
-
-		if (ttsChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : ttsChunks) {
-				if (item == null) {
-					msg.setTtsChunks(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTtsChunks(ttsChunks);
-			}
-		} else {
-			msg.setTtsChunks(null);
-		}
-
-		if (softButtons != null) {
-			boolean isValid = true;
-			for (SoftButton item : softButtons) {
-				if (item == null) {
-					msg.setSoftButtons(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTtsChunks(ttsChunks);
-			}
-		} else {
-			msg.setSoftButtons(null);
-		}
+		msg.setTtsChunks(ttsChunks);
+		msg.setSoftButtons(softButtons);
 
 		return msg;
 	}
 
+	
+	
 	public static Alert buildAlert(String ttsText, Boolean playTone,
 			Integer correlationID) {
 		Vector<TTSChunk> chunks = TTSChunkFactory
@@ -369,21 +287,7 @@ public class RPCRequestFactory {
 		msg.setAlertText2(alertText2);
 		msg.setDuration(duration);
 		msg.setPlayTone(playTone);
-
-		if (ttsChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : ttsChunks) {
-				if (item == null) {
-					msg.setTtsChunks(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTtsChunks(ttsChunks);
-			}
-		} else {
-			msg.setTtsChunks(null);
-		}
+		msg.setTtsChunks(ttsChunks);
 
 		return msg;
 	}
@@ -392,24 +296,9 @@ public class RPCRequestFactory {
 			Vector<Choice> choiceSet, Integer interactionChoiceSetID,
 			Integer correlationID) {
 		CreateInteractionChoiceSet msg = new CreateInteractionChoiceSet();
+		msg.setChoiceSet(choiceSet);
 		msg.setInteractionChoiceSetID(interactionChoiceSetID);
 		msg.setCorrelationID(correlationID);
-		
-		if (choiceSet != null) {
-			boolean isValid = true;
-			for (Choice item : choiceSet) {
-				if (item == null) {
-					msg.setChoiceSet(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setChoiceSet(choiceSet);
-			}
-		} else {
-			msg.setChoiceSet(null);
-		}
-		
 		return msg;
 	}
 	
@@ -461,85 +350,15 @@ public class RPCRequestFactory {
 			InteractionMode interactionMode, Integer timeout, Vector<VrHelpItem> vrHelp,
 			Integer correlationID) {
 		PerformInteraction msg = new PerformInteraction();
+		msg.setInitialPrompt(initChunks);
 		msg.setInitialText(displayText);
+		msg.setInteractionChoiceSetIDList(interactionChoiceSetIDList);
 		msg.setInteractionMode(interactionMode);
 		msg.setTimeout(timeout);
+		msg.setHelpPrompt(helpChunks);
+		msg.setTimeoutPrompt(timeoutChunks);
+		msg.setVrHelp(vrHelp);
 		msg.setCorrelationID(correlationID);
-		
-		if (interactionChoiceSetIDList != null) {
-			boolean isValid = true;
-			for (Integer item : interactionChoiceSetIDList) {
-				if (item == null) {
-					msg.setInteractionChoiceSetIDList(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInteractionChoiceSetIDList(interactionChoiceSetIDList);
-			}
-		} else {
-			msg.setInteractionChoiceSetIDList(null);
-		}
-		
-		if (vrHelp != null) {
-			boolean isValid = true;
-			for (VrHelpItem item : vrHelp) {
-				if (item == null) {
-					msg.setVrHelp(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setVrHelp(vrHelp);
-			}
-		} else {
-			msg.setVrHelp(null);
-		}
-		
-		if (timeoutChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : timeoutChunks) {
-				if (item == null) {
-					msg.setTimeoutPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTimeoutPrompt(timeoutChunks);
-			}
-		} else {
-			msg.setTimeoutPrompt(null);
-		}
-		
-		if (initChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : initChunks) {
-				if (item == null) {
-					msg.setInitialPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInitialPrompt(initChunks);
-			}
-		} else {
-			msg.setInitialPrompt(null);
-		}
-		
-		if (helpChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : helpChunks) {
-				if (item == null) {
-					msg.setHelpPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setHelpPrompt(helpChunks);
-			}
-		} else {
-			msg.setHelpPrompt(null);
-		}
 		
 		return msg;
 	}
@@ -593,70 +412,14 @@ public class RPCRequestFactory {
 			InteractionMode interactionMode, Integer timeout,
 			Integer correlationID) {
 		PerformInteraction msg = new PerformInteraction();
+		msg.setInitialPrompt(initChunks);
 		msg.setInitialText(displayText);
+		msg.setInteractionChoiceSetIDList(interactionChoiceSetIDList);
 		msg.setInteractionMode(interactionMode);
 		msg.setTimeout(timeout);
+		msg.setHelpPrompt(helpChunks);
+		msg.setTimeoutPrompt(timeoutChunks);
 		msg.setCorrelationID(correlationID);
-		
-		if (interactionChoiceSetIDList != null) {
-			boolean isValid = true;
-			for (Integer item : interactionChoiceSetIDList) {
-				if (item == null) {
-					msg.setInteractionChoiceSetIDList(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInteractionChoiceSetIDList(interactionChoiceSetIDList);
-			}
-		} else {
-			msg.setInteractionChoiceSetIDList(null);
-		}
-		
-		if (timeoutChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : timeoutChunks) {
-				if (item == null) {
-					msg.setTimeoutPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTimeoutPrompt(timeoutChunks);
-			}
-		} else {
-			msg.setTimeoutPrompt(null);
-		}
-		
-		if (initChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : initChunks) {
-				if (item == null) {
-					msg.setInitialPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInitialPrompt(initChunks);
-			}
-		} else {
-			msg.setInitialPrompt(null);
-		}
-		
-		if (helpChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : helpChunks) {
-				if (item == null) {
-					msg.setHelpPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setHelpPrompt(helpChunks);
-			}
-		} else {
-			msg.setHelpPrompt(null);
-		}
 		
 		return msg;
 	}
@@ -716,52 +479,6 @@ public class RPCRequestFactory {
 		msg.setTimeout(timeout);
 		msg.setHelpPrompt(helpChunks);
 		msg.setCorrelationID(correlationID);
-		
-		if (interactionChoiceSetIDList != null) {
-			boolean isValid = true;
-			for (Integer item : interactionChoiceSetIDList) {
-				if (item == null) {
-					msg.setInteractionChoiceSetIDList(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInteractionChoiceSetIDList(interactionChoiceSetIDList);
-			}
-		} else {
-			msg.setInteractionChoiceSetIDList(null);
-		}
-		
-		if (initChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : initChunks) {
-				if (item == null) {
-					msg.setInitialPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInitialPrompt(initChunks);
-			}
-		} else {
-			msg.setInitialPrompt(null);
-		}
-		
-		if (helpChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : helpChunks) {
-				if (item == null) {
-					msg.setHelpPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setHelpPrompt(helpChunks);
-			}
-		} else {
-			msg.setHelpPrompt(null);
-		}
-		
 		return msg;
 	}
 	
@@ -896,20 +613,7 @@ public class RPCRequestFactory {
 		
 		msg.setAppName(appName);
 		
-		if (ttsName != null) {
-			boolean isValid = true;
-			for (TTSChunk item : ttsName) {
-				if (item == null) {
-					msg.setTtsName(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTtsName(ttsName);
-			}
-		} else {
-			msg.setTtsName(null);
-		}
+		msg.setTtsName(ttsName);
 		
 		if (ngnMediaScreenAppName == null) {
 			ngnMediaScreenAppName = appName;
@@ -917,20 +621,11 @@ public class RPCRequestFactory {
 		
 		msg.setNgnMediaScreenAppName(ngnMediaScreenAppName);
 		
-		if (vrSynonyms != null) {
-			boolean isValid = true;
-			for (String item : vrSynonyms) {
-				if (item == null) {
-					msg.setVrSynonyms(new Vector<String>());
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setVrSynonyms(vrSynonyms);
-			}
-		} else {
-			msg.setVrSynonyms(new Vector<String>());
+		if (vrSynonyms == null) {
+			vrSynonyms = new Vector<String>();
+			vrSynonyms.add(appName);
 		}
+		msg.setVrSynonyms(vrSynonyms);
 		
 		msg.setIsMediaApplication(isMediaApp);
 		
@@ -945,20 +640,7 @@ public class RPCRequestFactory {
 		
 		msg.setHmiDisplayLanguageDesired(hmiDisplayLanguageDesired);
 		
-		if (appType != null) {
-			boolean isValid = true;
-			for (AppHMIType item : appType) {
-				if (item == null) {
-					msg.setAppHMIType(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setAppHMIType(appType);
-			}
-		} else {
-			msg.setAppHMIType(null);
-		}
+		msg.setAppHMIType(appType);
 		
 		msg.setAppID(appID);
 
@@ -985,36 +667,9 @@ public class RPCRequestFactory {
 			Integer correlationID) {
 		SetGlobalProperties req = new SetGlobalProperties();
 		req.setCorrelationID(correlationID);
-		
-		if (helpChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : helpChunks) {
-				if (item == null) {
-					req.setHelpPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				req.setHelpPrompt(helpChunks);
-			}
-		} else {
-			req.setHelpPrompt(null);
-		}
-		
-		if (timeoutChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : timeoutChunks) {
-				if (item == null) {
-					req.setTimeoutPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				req.setTimeoutPrompt(timeoutChunks);
-			}
-		} else {
-			req.setTimeoutPrompt(null);
-		}
+
+		req.setHelpPrompt(helpChunks);
+		req.setTimeoutPrompt(timeoutChunks);
 
 		return req;
 	}
@@ -1036,53 +691,11 @@ public class RPCRequestFactory {
 		SetGlobalProperties req = new SetGlobalProperties();
 		req.setCorrelationID(correlationID);
 
-		if (helpChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : helpChunks) {
-				if (item == null) {
-					req.setHelpPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				req.setHelpPrompt(helpChunks);
-			}
-		} else {
-			req.setHelpPrompt(null);
-		}
-
-		if (timeoutChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : timeoutChunks) {
-				if (item == null) {
-					req.setTimeoutPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				req.setTimeoutPrompt(timeoutChunks);
-			}
-		} else {
-			req.setTimeoutPrompt(null);
-		}
+		req.setHelpPrompt(helpChunks);
+		req.setTimeoutPrompt(timeoutChunks);
 		
-		req.setVrHelpTitle(vrHelpTitle);
-		
+		req.setVrHelpTitle(vrHelpTitle);		
 		req.setVrHelp(vrHelp);
-		if (vrHelp != null) {
-			boolean isValid = true;
-			for (VrHelpItem item : vrHelp) {
-				if (item == null) {
-					req.setVrHelp(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				req.setVrHelp(vrHelp);
-			}
-		} else {
-			req.setVrHelp(null);
-		}
 
 		return req;
 	}
@@ -1134,23 +747,9 @@ public class RPCRequestFactory {
 		msg.setAlignment(alignment);
 		msg.setMainField3(mainText3);
 		msg.setMainField4(mainText4);
-		msg.setGraphic(graphic);		
-		msg.setCustomPresets(customPresets);
-		
-		if (softButtons != null) {
-			boolean isValid = true;
-			for (SoftButton item : softButtons) {
-				if (item == null) {
-					msg.setSoftButtons(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setSoftButtons(softButtons);
-			}
-		} else {
-			msg.setSoftButtons(null);
-		}
+		msg.setGraphic(graphic);
+		msg.setSoftButtons(softButtons);
+		msg.setCustomPresets(customPresets);		
 
 		return msg;
 	}
@@ -1197,20 +796,7 @@ public class RPCRequestFactory {
 		Speak msg = new Speak();
 		msg.setCorrelationID(correlationID);
 
-		if (ttsChunks != null) {
-			boolean isValid = true;
-			for (TTSChunk item : ttsChunks) {
-				if (item == null) {
-					msg.setTtsChunks(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setTtsChunks(ttsChunks);
-			}
-		} else {
-			msg.setTtsChunks(null);
-		}
+		msg.setTtsChunks(ttsChunks);
 
 		return msg;
 	}
@@ -1329,21 +915,7 @@ public class RPCRequestFactory {
 		msg.setCorrelationID(correlationID);
 		msg.setScrollableMessageBody(scrollableMessageBody);
 		msg.setTimeout(timeout);
-
-		if (softButtons != null) {
-			boolean isValid = true;
-			for (SoftButton item : softButtons) {
-				if (item == null) {
-					msg.setSoftButtons(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setSoftButtons(softButtons);
-			}
-		} else {
-			msg.setSoftButtons(null);
-		}
+		msg.setSoftButtons(softButtons);
 		
 		return msg;		
 	}
@@ -1355,22 +927,8 @@ public class RPCRequestFactory {
 		msg.setNumTicks(numTicks);
 		msg.setPosition(position);
 		msg.setSliderHeader(sliderHeader);
+		msg.setSliderFooter(sliderFooter);
 		msg.setTimeout(timeout);
-		
-		if (sliderFooter != null) {
-			boolean isValid = true;
-			for (String item : sliderFooter) {
-				if (item == null) {
-					msg.setSliderFooter(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setSliderFooter(sliderFooter);
-			}
-		} else {
-			msg.setSliderFooter(null);
-		}
 		
 		return msg;
 	}
@@ -1413,6 +971,7 @@ public class RPCRequestFactory {
 	{
 		PerformAudioPassThru msg = new PerformAudioPassThru();
 		msg.setCorrelationID(correlationID);
+		msg.setInitialPrompt(initialPrompt);
 		msg.setAudioPassThruDisplayText1(audioPassThruDisplayText1);
 		msg.setAudioPassThruDisplayText2(audioPassThruDisplayText2);
 		msg.setSamplingRate(samplingRate);
@@ -1420,21 +979,6 @@ public class RPCRequestFactory {
 		msg.setBitsPerSample(bitsPerSample);
 		msg.setAudioType(audioType);
 		msg.setMuteAudio(muteAudio);
-		
-		if (initialPrompt != null) {
-			boolean isValid = true;
-			for (TTSChunk item : initialPrompt) {
-				if (item == null) {
-					msg.setInitialPrompt(null);
-					isValid = false;
-				}
-			}
-			if (isValid) {
-				msg.setInitialPrompt(initialPrompt);
-			}
-		} else {
-			msg.setInitialPrompt(null);
-		}
 				
 		return msg;
 	}

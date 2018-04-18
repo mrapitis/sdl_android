@@ -15,7 +15,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
@@ -47,6 +49,9 @@ import com.smartdevicelink.transport.TCPTransportConfig;
 import com.smartdevicelink.transport.enums.TransportType;
 
 import static com.smartdevicelink.protocol.enums.ControlFrameTags.RPC.TransportEventUpdate;
+import static com.smartdevicelink.util.AndroidTools.createBroadcastIntent;
+import static com.smartdevicelink.util.AndroidTools.sendBroadcastIntent;
+import static com.smartdevicelink.util.AndroidTools.updateBroadcastIntent;
 
 public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorListener, IStreamListener, ISecurityInitializedListener {
 	private static final String SECONDARY_TRANSPORT_TCP = "TCP_WIFI";
@@ -83,16 +88,20 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
     private HashMap<SessionType, SecondaryService> secondaryServices;
 	private ArrayList<TransportLevel> audioTransports;
 	private ArrayList<TransportLevel> videoTransports;
+	private String applicationName = null;
+	private String appId = null;
 
 	private Set<SessionType> primaryConnectionServices = new HashSet<>();
     
-	public static SdlSession createSession(byte wiproVersion, ISdlConnectionListener listener, BaseTransportConfig btConfig) {
+	public static SdlSession createSession(byte wiproVersion, ISdlConnectionListener listener, BaseTransportConfig btConfig, String applicationName, String appId) {
 		
 		SdlSession session =  new SdlSession();
 		session.wiproProcolVer = wiproVersion;
 		session.sessionListener = listener;
 		session.transportConfig = btConfig;
 		session.secondaryConnectionEnabled = true;
+		session.applicationName = applicationName;
+		session.appId = appId;
 
 		return session;
 	}
@@ -288,7 +297,7 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 					StreamPacketizer packetizer = new StreamPacketizer(this, null, SessionType.NAV, rpcSessionID, this);
 					SdlConnection connection = null;
 					if (secondaryConnectionEnabled) {
-						boolean allowed = isServiceAllowed(SessionType.PCM, TransportLevel.SECONDARY);
+						boolean allowed = isServiceAllowed(SessionType.NAV, TransportLevel.SECONDARY);
 						if ((this.secondarySdlConnection != null) && allowed) {
 							connection = this.secondarySdlConnection;
 						} else {
@@ -517,6 +526,7 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 	}
 	
 	public void startService (SessionType serviceType, byte sessionID, boolean isEncrypted) {
+
 		if (_sdlConnection == null)
 			return;
 		
@@ -537,28 +547,52 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 			_sdlConnection.startService(serviceType, sessionID, isEncrypted);
 		} else {
 			boolean allowed = isServiceAllowed(serviceType, TransportLevel.SECONDARY);
+
+			Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+			updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "startService()");
+			String sDetailedInfo = "secondarySdlConnection != null: "+ ((secondarySdlConnection != null) ? "true": "false") + " & "
+					+ "allowed: " + allowed + "\n";
+
+			sDetailedInfo += "isEncrypted: " + isEncrypted + "\n";
 			if ((secondarySdlConnection != null) && allowed) {
+				sDetailedInfo += "secondarySdlConnection startService" + "\n";
 				secondarySdlConnection.startService(serviceType, sessionID, isEncrypted);
 			} else {
 				if (allowed) {
+					sDetailedInfo += "addPendingService";
 					addPendingService(serviceType, sessionID, isEncrypted, null);
 				}
 				if (isServiceAllowed(serviceType, TransportLevel.PRIMARY)) {
+					sDetailedInfo += "sdlConnection startService" + "\n";
 					_sdlConnection.startService(serviceType, sessionID, isEncrypted);
  				}
 			}
+			updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+			sendBroadcastIntent(sendIntent);
 		}
 	}
 	
 	public void endService (SessionType serviceType, byte sessionID) {
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		String sDetailedInfo = "";
+    	updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "endService()");
+
 		if ((serviceType == SessionType.NAV) || (serviceType == SessionType.PCM)) {
 			if ((secondarySdlConnection != null) && isServiceAllowed(serviceType, TransportLevel.SECONDARY)) {
+				sDetailedInfo += "secondarySdlConnection endService" + "\n";
+				updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+				sendBroadcastIntent(sendIntent);
 				secondarySdlConnection.endService(serviceType, sessionID);
 				return;
 			}
 		}
 		if (_sdlConnection == null) 
 			return;
+
+		sDetailedInfo += "sdlConnection endService" + "\n";
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
+
 		_sdlConnection.endService(serviceType, sessionID);
 	}
 	
@@ -670,7 +704,12 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 
 	@Override
 	public void onTransportDisconnected(String info, TransportType transportType) {
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		String sDetailedInfo = "secondaryConnectionEnabled: "+ secondaryConnectionEnabled + "\n";
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onTransportDisconnected()");
+
 		if (!secondaryConnectionEnabled || (transportType == transportConfig.getTransportType())) {
+			sDetailedInfo += "transportType same.";
 			this.sessionListener.onTransportDisconnected(info, transportType);
 	        // TODO: remove this when the deprecated method is removed
 			this.sessionListener.onTransportDisconnected(info);
@@ -683,18 +722,23 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 			// Don't notify higher about secondary transport disconnect
 			if (secondarySdlConnection != null) {
 				if (secondaryConnectionEnabled) {
+					sDetailedInfo += "secondarySdlConnection startTransport()";
 					try {
 						secondarySdlConnection.startTransport();
 					} catch (SdlException ex) {
 						Log.e(TAG, "error restrying TCP connection", ex);
 					}
 				} else {
+					sDetailedInfo += "secondarySdlConnection unregisterSession()";
 					secondarySdlConnection.unregisterSession(this);
 					secondarySdlConnection = null;
 				}
 //				switchServices(TransportLevel.PRIMARY);
 			}
 		}
+
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
 	}
 
 //	private void switchServices(TransportLevel level) {
@@ -752,13 +796,20 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 
 	@Override
 	public void onTransportError(String info, TransportType transportType, Exception err) {
+
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		String sDetailedInfo = "secondaryConnectionEnabled: "+ secondaryConnectionEnabled + "\n";
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onTransportError()");
+
 		if (!secondaryConnectionEnabled || (transportType == transportConfig.getTransportType())) {
+			sDetailedInfo += "transportType same.";
 			this.sessionListener.onTransportError(info, transportType, err);
 	        // TODO: remove this when the deprecated method is removed
 			this.sessionListener.onTransportError(info, err);
 		} else {
 			// Don't notify higher about secondary transport error
 			if (secondaryConnectionEnabled) {
+				sDetailedInfo += "secondarySdlConnection startTransport()";
 				if (mVideoPacketizer != null) {
 					mVideoPacketizer.pause();
 				}
@@ -771,10 +822,14 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 					Log.e(TAG, "error restrying TCP connection", ex);
 				}
 			} else {
+				sDetailedInfo += "secondarySdlConnection unregisterSession()";
 				secondarySdlConnection.unregisterSession(this);
 				secondarySdlConnection = null;
 			}
 		}
+
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
 	}
 
 	@Override
@@ -944,7 +999,7 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 			
 			while (iter.hasNext()) {
 				service = iter.next();
-				
+
 				if (service != null) {
 					if ((service != SessionType.NAV) && (service != SessionType.PCM)) {
 						_sdlConnection.startService(service, getSessionId(), true);
@@ -1062,9 +1117,20 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 	@Override
 	public void onEnableSecondaryTransport(byte sessionID, ArrayList<String> secondaryTransport,
 	        ArrayList<Integer> audio, ArrayList<Integer> video, TransportType transportType) {
+
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		String sDetailedInfo = "";
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onEnableSecondaryTransport()");
+
 		if (!isPrimaryBluetoothTransport()) {
 			// Only BT transports as primary need secondary transport
+			sDetailedInfo = "Only BT transport needs secondary transport." + "\n";
 			secondaryConnectionEnabled = false;
+
+			sDetailedInfo += "secondaryConnectionEnabled: " + secondaryConnectionEnabled;
+			updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+			sendBroadcastIntent(sendIntent);
+
 			return;
 		}
 
@@ -1074,6 +1140,10 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 			videoTransports = null;
 
 			if ((secondaryTransport != null) && (audio != null) && (video != null)) {
+				sDetailedInfo += "secondaryTransport list: " + TextUtils.join(", ", secondaryTransport) + "\n";
+				sDetailedInfo += "audio list: " + TextUtils.join(", ", audio) + "\n";
+				sDetailedInfo += "video list: " + TextUtils.join(", ", video) + "\n";
+
 				int tcpPos = secondaryTransport.indexOf(SECONDARY_TRANSPORT_TCP);
 				int usbPos = secondaryTransport.indexOf(SECONDARY_TRANSPORT_USB);
 				if ((tcpPos >= 0) || (usbPos >= 0)) {
@@ -1100,9 +1170,16 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 				} else {
 					secondaryConnectionEnabled = false;
 				}
+
+				sDetailedInfo += "secondaryConnectionEnabled: " + secondaryConnectionEnabled;
 			} else {
 				secondaryConnectionEnabled = false;
+				sDetailedInfo = "secondaryTransport / audio /video list is null " + "\n";
+				sDetailedInfo += "secondaryConnectionEnabled: " + secondaryConnectionEnabled;
 			}
+
+			updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+			sendBroadcastIntent(sendIntent);
 		}
 	}
 
@@ -1133,14 +1210,33 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 	}
 
 	private boolean isServiceAllowed(SessionType type, TransportLevel level) {
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		String sDetailedInfo = "";
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "isServiceAllowed()");
+
 		// default to allowed for backward compatibility
 		boolean allowed = (level == TransportLevel.PRIMARY);
 
+		String sSessionType = "";
+
 		if ((type == SessionType.PCM) && (audioTransports != null)) {
 			allowed = audioTransports.contains(level);
+			sSessionType = "PCM";
 		} else if ((type == SessionType.NAV) && (videoTransports != null)) {
 			allowed = videoTransports.contains(level);
+			sSessionType = "NAV";
 		}
+
+		if(!sSessionType.equals("")) {
+			sDetailedInfo = "SessionType is: " + sSessionType + " & " + "TransportLevel is: " + level.toString() + "\n";
+		} else {
+			sDetailedInfo = "TransportLevel is: " + level.toString() + "\n";
+		}
+
+		sDetailedInfo += "isAllowed: " + allowed;
+
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
 
 		return allowed;
 	}
@@ -1189,15 +1285,27 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 
 	@Override
 	public void onTransportEventUpdate(byte sessionId, Map<String, Object> params) {
+
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		String sDetailedInfo = "";
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onTransportEventUpdate()");
+
 		String ipAddr = (String) params.get(TransportEventUpdate.TCP_IP_ADDRESS);
 		Integer port = (Integer) params.get(TransportEventUpdate.TCP_PORT);
+
+		sDetailedInfo = "ipAddr is: " + ipAddr + " & " + "port is: " + ((port == null) ? "null" : port.toString()) + "\n";
+		sDetailedInfo += "secondaryConnectionEnabled: " + secondaryConnectionEnabled + "\n";
+		sDetailedInfo += "secondaryTransportTypes: " + TextUtils.join(", ", secondaryTransportTypes) + "\n";
+
 		// TODO: get USB transport related data from packet
 		if ((secondaryConnectionEnabled) && (secondaryTransportTypes != null)) {
 			if ((ipAddr == null) && (port == null)) {
+				sDetailedInfo += "Stop TCP Transport.";
 				// empty frame data indicates that TCP transport is not available
 				stopTCPTransport();
 			} else if ((ipAddr != null) && (port != null)) {
 				if (secondaryTransportTypes.contains(TransportType.TCP)) {
+					sDetailedInfo += "Start TCP Transport.";
 					startTCPTransport(ipAddr, port);
 				}
 			}
@@ -1212,16 +1320,32 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 //              }
 //	        }
 		}
+
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
 	}
 
 	@Override
 	public void onRegisterSecondaryTransportACK(byte sessionID) {
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onRegisterSecondaryTransportACK()");
+		String sDetailedInfo = "Start Streaming Services now.";
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
+
 		startStreamingServices();
 	}
 
 	@Override
 	public void onRegisterSecondaryTransportNACKed(byte sessionID, String reason) {
 		Log.w(TAG, "received RegisterSecondaryTransportNACK because '" + reason + "'");
+		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onRegisterSecondaryTransportNACKed()");
+		String sDetailedInfo = "received NACK because '" + reason + "'" + "\n";
+		sDetailedInfo += "Stop TCP Transport now.";
+		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+		sendBroadcastIntent(sendIntent);
+
 		stopTCPTransport();
 	}
 

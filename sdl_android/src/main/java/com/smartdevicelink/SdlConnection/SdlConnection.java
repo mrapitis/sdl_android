@@ -83,7 +83,7 @@ public class SdlConnection implements IProtocolListener, ITransportListener {
 	
 	private void constructor(BaseTransportConfig transportConfig,RouterServiceValidator rsvp){
 		_connectionListener = new InternalMsgDispatcher();
-		
+
 		// Initialize the transport
 		synchronized(TRANSPORT_REFERENCE_LOCK) {
 			// Ensure transport is null
@@ -144,10 +144,7 @@ public class SdlConnection implements IProtocolListener, ITransportListener {
 	public AbstractProtocol getWiProProtocol(){
 		return _protocol;
 	}
-	
 
-	
-	
 	private void closeConnection(boolean willRecycle, byte rpcSessionID, int sessionHashId) {
 		synchronized(PROTOCOL_REFERENCE_LOCK) {
 

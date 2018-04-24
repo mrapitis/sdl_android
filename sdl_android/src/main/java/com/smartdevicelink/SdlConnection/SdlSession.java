@@ -196,18 +196,36 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 		SdlConnection connection = null;
 		SecondaryService secondaryService = null;
 		if ((secondaryConnectionEnabled) && ((sType == SessionType.PCM) || (sType == SessionType.NAV))) {
+			Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+			String sDetailedInfo = "";
+			updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "startStream()");
+
+			if(sType == SessionType.NAV){
+				sDetailedInfo += "SessionType is NAV" + "\n";
+			} else {
+				sDetailedInfo += "SessionType is PCM" + "\n";
+			}
+
 			boolean allowed = isServiceAllowed(sType, TransportLevel.SECONDARY);
+
+			sDetailedInfo += "ServiceAllowed for Secondary: " + (allowed ? "true" : "false")+ "\n";
+
 			if ((this.secondarySdlConnection != null) && allowed) {
+				sDetailedInfo += "using secondarySdlConnection" + "\n";
 				connection = secondarySdlConnection;
 			} else {
 				if (allowed) {
+					sDetailedInfo += "addPendingService" + "\n";
 					addPendingService(sType, rpcSessionID, null, null);
 					secondaryService = secondaryServices.get(sType);
 				}
 				if (isServiceAllowed(sType, TransportLevel.PRIMARY)) {
+					sDetailedInfo += "using sdlConnection" + "\n";
 					connection = this.getSdlConnection();
 				}
 			}
+			updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+			sendBroadcastIntent(sendIntent);
 		} else {
 			connection = this.getSdlConnection();
 		}
@@ -236,18 +254,36 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 		SecondaryService secondaryService = null;
 		SdlConnection connection = null;
 		if (secondaryConnectionEnabled && ((sType == SessionType.NAV) || (sType == SessionType.PCM))) {
+			Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+			String sDetailedInfo = "";
+			updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "OutputStream startStream()");
+
+			if(sType == SessionType.NAV){
+				sDetailedInfo += "SessionType is NAV" + "\n";
+			} else {
+				sDetailedInfo += "SessionType is PCM" + "\n";
+			}
+
 			boolean allowed = isServiceAllowed(sType, TransportLevel.SECONDARY);
+
+			sDetailedInfo += "ServiceAllowed for Secondary: " + (allowed ? "true" : "false")+ "\n";
+
 			if ((this.secondarySdlConnection != null) && allowed) {
+				sDetailedInfo += "using secondarySdlConnection" + "\n";
 				connection = this.secondarySdlConnection;
 			} else {
 				if (allowed) {
+					sDetailedInfo += "addPendingService" + "\n";
 					addPendingService(sType, rpcSessionID, null, null);
 					secondaryService = secondaryServices.get(sType);
 				}
 				if (isServiceAllowed(sType, TransportLevel.PRIMARY)) {
+					sDetailedInfo += "using sdlConnection" + "\n";
 					connection = this.getSdlConnection();
 				}
 			}
+			updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+			sendBroadcastIntent(sendIntent);
 		} else {
 			connection = this.getSdlConnection();
 		}
@@ -291,23 +327,38 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 	public IVideoStreamListener startVideoStream() {
 		byte rpcSessionID = getSessionId();
 		VideoStreamingProtocol protocol = getAcceptedProtocol();
+
 		try {
 			switch (protocol) {
 				case RAW: {
 					StreamPacketizer packetizer = new StreamPacketizer(this, null, SessionType.NAV, rpcSessionID, this);
 					SdlConnection connection = null;
 					if (secondaryConnectionEnabled) {
+						Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+						String sDetailedInfo = "";
+						updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "startVideoStream()");
+
+						sDetailedInfo = "AcceptedProtocol is: " + protocol.toString() + "\n";
+
 						boolean allowed = isServiceAllowed(SessionType.NAV, TransportLevel.SECONDARY);
+
+						sDetailedInfo += "ServiceAllowed for Secondary: " + (allowed ? "true" : "false")+ "\n";
+
 						if ((this.secondarySdlConnection != null) && allowed) {
+							sDetailedInfo += "using secondarySdlConnection" + "\n";
 							connection = this.secondarySdlConnection;
 						} else {
 							if (allowed) {
+								sDetailedInfo += "addPendingService" + "\n";
 								addPendingService(SessionType.NAV, rpcSessionID, null, packetizer);
 							}
 							if (isServiceAllowed(SessionType.NAV, TransportLevel.PRIMARY)) {
+								sDetailedInfo += "using sdlConnection" + "\n";
 								connection = this.getSdlConnection();
 							}
 						}
+						updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+						sendBroadcastIntent(sendIntent);
 					}
 					packetizer.sdlConnection = connection;
 					mVideoPacketizer = packetizer;
@@ -318,17 +369,30 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 					RTPH264Packetizer packetizer = new RTPH264Packetizer(this, SessionType.NAV, rpcSessionID, this);
 					SdlConnection connection = null;
 					if (secondaryConnectionEnabled) {
+						Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+						String sDetailedInfo = "";
+						updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "startVideoStream()");
+
+						sDetailedInfo = "AcceptedProtocol is: " + protocol.toString() + "\n";
 						boolean allowed = isServiceAllowed(SessionType.NAV, TransportLevel.SECONDARY);
+
+						sDetailedInfo += "ServiceAllowed for Secondary: " + (allowed ? "true" : "false")+ "\n";
+
 						if ((this.secondarySdlConnection != null) && allowed) {
+							sDetailedInfo += "using secondarySdlConnection" + "\n";
 							connection = this.secondarySdlConnection;
 						} else {
 							if (allowed) {
+								sDetailedInfo += "addPendingService" + "\n";
 								addPendingService(SessionType.NAV, rpcSessionID, null, packetizer);
 							}
 							if (isServiceAllowed(SessionType.NAV, TransportLevel.PRIMARY)) {
+								sDetailedInfo += "using sdlConnection" + "\n";
 								connection = this.getSdlConnection();
 							}
 						}
+						updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+						sendBroadcastIntent(sendIntent);
 					}
 					packetizer.sdlConnection = connection;
 					mVideoPacketizer = packetizer;
@@ -350,17 +414,29 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 			StreamPacketizer packetizer = new StreamPacketizer(this, null, SessionType.PCM, rpcSessionID, this);
 			SdlConnection connection = null;
 			if (secondaryConnectionEnabled) {
+				Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+				String sDetailedInfo = "";
+				updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "startAudioStream()");
+
 				boolean allowed = isServiceAllowed(SessionType.PCM, TransportLevel.SECONDARY);
+				sDetailedInfo += "ServiceAllowed for Secondary: " + (allowed ? "true" : "false")+ "\n";
+
 				if ((this.secondarySdlConnection != null) && allowed) {
+					sDetailedInfo += "using secondarySdlConnection" + "\n";
 					connection = this.secondarySdlConnection;
 				} else {
 					if (allowed) {
+						sDetailedInfo += "addPendingService" + "\n";
 						addPendingService(SessionType.PCM, rpcSessionID, null, packetizer);
 					}
 					if (isServiceAllowed(SessionType.PCM, TransportLevel.PRIMARY)) {
+						sDetailedInfo += "using sdlConnection" + "\n";
 						connection = this.getSdlConnection();
 					}
 				}
+
+				updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+				sendBroadcastIntent(sendIntent);
 			}
 			packetizer.sdlConnection = connection;
 			mAudioPacketizer = packetizer;
@@ -577,7 +653,15 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 		String sDetailedInfo = "";
     	updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "endService()");
 
+		if(serviceType == SessionType.NAV){
+			sDetailedInfo += "SessionType is NAV" + "\n";
+		} else {
+			sDetailedInfo += "SessionType is PCM" + "\n";
+		}
+
 		if ((serviceType == SessionType.NAV) || (serviceType == SessionType.PCM)) {
+			sDetailedInfo += "ServiceAllowed for Secondary: " + ((isServiceAllowed(serviceType, TransportLevel.SECONDARY) ? "true" : "false"))+ "\n";
+
 			if ((secondarySdlConnection != null) && isServiceAllowed(serviceType, TransportLevel.SECONDARY)) {
 				sDetailedInfo += "secondarySdlConnection endService" + "\n";
 				updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
@@ -1004,19 +1088,36 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 					if ((service != SessionType.NAV) && (service != SessionType.PCM)) {
 						_sdlConnection.startService(service, getSessionId(), true);
 					} else {
+						Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+						String sDetailedInfo = "";
+						updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onSecurityInitialized()");
+
 						boolean allowed = isServiceAllowed(service, TransportLevel.SECONDARY);
 
+						if(service == SessionType.NAV){
+							sDetailedInfo += "SessionType is NAV" + "\n";
+						} else {
+							sDetailedInfo += "SessionType is PCM" + "\n";
+						}
+
+						sDetailedInfo += "ServiceAllowed for Secondary: " + (allowed ? "true" : "false")+ "\n";
+
 						if ((secondarySdlConnection != null) && allowed) {
+							sDetailedInfo += "secondarySdlConnection startService" + "\n";
 							secondarySdlConnection.startService(service, getSessionId(), true);
 						} else {
 							if (secondaryConnectionEnabled && allowed) {
+								sDetailedInfo += "secondaryConnectionEnabled addPendingService" + "\n";
 								addPendingService(service, getSessionId(),true, null);
 							}
 
 							if (isServiceAllowed(service, TransportLevel.PRIMARY)) {
+								sDetailedInfo += "sdlConnection startService" + "\n";
 								_sdlConnection.startService(service, getSessionId(), true);
 							}
 						}
+						updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+						sendBroadcastIntent(sendIntent);
 					}
 				}
 				
@@ -1210,33 +1311,14 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 	}
 
 	private boolean isServiceAllowed(SessionType type, TransportLevel level) {
-		Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
-		String sDetailedInfo = "";
-		updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "isServiceAllowed()");
-
 		// default to allowed for backward compatibility
 		boolean allowed = (level == TransportLevel.PRIMARY);
 
-		String sSessionType = "";
-
 		if ((type == SessionType.PCM) && (audioTransports != null)) {
 			allowed = audioTransports.contains(level);
-			sSessionType = "PCM";
 		} else if ((type == SessionType.NAV) && (videoTransports != null)) {
 			allowed = videoTransports.contains(level);
-			sSessionType = "NAV";
 		}
-
-		if(!sSessionType.equals("")) {
-			sDetailedInfo = "SessionType is: " + sSessionType + " & " + "TransportLevel is: " + level.toString() + "\n";
-		} else {
-			sDetailedInfo = "TransportLevel is: " + level.toString() + "\n";
-		}
-
-		sDetailedInfo += "isAllowed: " + allowed;
-
-		updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
-		sendBroadcastIntent(sendIntent);
 
 		return allowed;
 	}
@@ -1244,28 +1326,48 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 	private void startStreamingServices() {
 		if (secondarySdlConnection != null) {
 			// Start up previously requested services on secondary connection
+			Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+			String sDetailedInfo = "";
+			updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "startStreamingServices()");
+
+			sDetailedInfo += "Start Pending Services on Secondary Transport." + "\n";
+
 			if (!secondaryServices.isEmpty()) {
+				sDetailedInfo += "secondaryServices is not Empty." + "\n" ;
 				Set<SessionType> keys = secondaryServices.keySet();
 				for (SessionType type : keys) {
 					SecondaryService service = secondaryServices.get(type);
 					if (service != null) {
+
+						if(type == SessionType.NAV){
+							sDetailedInfo += "SessionType is NAV" + "\n";
+						} else {
+							sDetailedInfo += "SessionType is PCM" + "\n";
+						}
+
+						sDetailedInfo += "secondarySdlConnection startService." + "\n" ;
 						secondarySdlConnection.startService(type,
 								service.sessionId, service.isEncrypted);
 
 						if (service.stream instanceof StreamPacketizer) {
+							sDetailedInfo += "StreamPacketizer using secondarySdlConnection." + "\n" ;
 							((StreamPacketizer) service.stream).sdlConnection = secondarySdlConnection;
 						} else if (service.stream instanceof RTPH264Packetizer) {
+							sDetailedInfo += "RTPH264Packetizer using secondarySdlConnection." + "\n" ;
 							((RTPH264Packetizer) service.stream).sdlConnection = secondarySdlConnection;
 						}
 
 						if (primaryConnectionServices.contains(type)) {
+							sDetailedInfo += "sdlConnection endService()." + "\n" ;
 							_sdlConnection.endService(type, service.sessionId);
 						}
 					}
 				}
 				secondaryServices.clear();
 			} else {
+				sDetailedInfo += "secondaryServices is Empty." + "\n" ;
 				if ((mAudioPacketizer != null) && isServiceAllowed(SessionType.PCM, TransportLevel.SECONDARY)) {
+					sDetailedInfo += "secondarySdlConnection startService PCM." + "\n" ;
 					secondarySdlConnection.startService(SessionType.PCM,
 							sessionId, (sdlSecurity != null));
 					if (mAudioPacketizer.isPaused()) {
@@ -1273,6 +1375,7 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 					}
 				}
 				if ((mVideoPacketizer != null) && isServiceAllowed(SessionType.NAV, TransportLevel.SECONDARY)) {
+					sDetailedInfo += "secondarySdlConnection startService NAV." + "\n" ;
 					secondarySdlConnection.startService(SessionType.NAV,
 							sessionId, (sdlSecurity != null));
 					if (mVideoPacketizer.isPaused()) {
@@ -1280,6 +1383,8 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 					}
 				}
 			}
+			updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+			sendBroadcastIntent(sendIntent);
 		}
 	}
 

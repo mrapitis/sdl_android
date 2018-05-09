@@ -1065,13 +1065,14 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 				service = iter.next();
 
 				if (service != null) {
+					Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
+					String sDetailedInfo = "";
+					updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onSecurityInitialized()");
+
 					if ((service != SessionType.NAV) && (service != SessionType.PCM)) {
+						sDetailedInfo += "SessionType is Non-NAV/PCM" + "\n";
 						_sdlConnection.startService(service, getSessionId(), true);
 					} else {
-						Intent sendIntent = createBroadcastIntent(this.applicationName, this.appId);
-						String sDetailedInfo = "";
-						updateBroadcastIntent(sendIntent, "FUNCTION_NAME", "onSecurityInitialized()");
-
 						boolean allowed = isServiceAllowed(service, TransportLevel.SECONDARY);
 
 						if(service == SessionType.NAV){
@@ -1096,9 +1097,10 @@ public class SdlSession implements ISdlConnectionListener, IHeartbeatMonitorList
 								_sdlConnection.startService(service, getSessionId(), true);
 							}
 						}
-						updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
-						sendBroadcastIntent(sendIntent);
 					}
+
+					updateBroadcastIntent(sendIntent, "COMMENT1", sDetailedInfo);
+					sendBroadcastIntent(sendIntent);
 				}
 				
 				iter.remove();				

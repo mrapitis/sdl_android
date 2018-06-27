@@ -115,6 +115,7 @@ import com.smartdevicelink.transport.SiphonServer;
 import com.smartdevicelink.transport.enums.TransportType;
 import com.smartdevicelink.util.CorrelationIdGenerator;
 import com.smartdevicelink.util.DebugTool;
+import com.smartdevicelink.util.AppIdUtils;
 
 
 @SuppressWarnings({"WeakerAccess", "Convert2Diamond"})
@@ -190,7 +191,8 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 	private Language _sdlLanguageDesired = null;
 	private Language _hmiDisplayLanguageDesired = null;
 	private Vector<AppHMIType> _appType = null;
-	private String _appID = null;
+	private String _shortAppID = null;
+	private String _fullAppId = null;
 	@SuppressWarnings({"FieldCanBeLocal", "unused"}) //Need to understand what this is used for
 	private String _autoActivateIdDesired = null;
 	private String _lastHashID = null;
@@ -633,7 +635,14 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 		_sdlLanguageDesired = languageDesired;
 		_hmiDisplayLanguageDesired = hmiDisplayLanguageDesired;
 		_appType = appType;
-		_appID = appID;
+		_shortAppID = appID;
+
+		boolean isValid = AppIdUtils.isValidUUID(appID);
+		if (isValid) {
+			_shortAppID = AppIdUtils.getShortAppId(appID);
+			_fullAppId = appID;
+		}
+
 		_autoActivateIdDesired = autoActivateID;
 		_transportConfig = transportConfig;
 				
@@ -830,7 +839,7 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 		Intent sendIntent = new Intent();
 		sendIntent.setAction("com.smartdevicelink.broadcast");
 		sendIntent.putExtra("APP_NAME", this._applicationName);
-		sendIntent.putExtra("APP_ID", this._appID);
+		sendIntent.putExtra("APP_ID", this._shortAppID);
 		sendIntent.putExtra("RPC_NAME", "");
 		sendIntent.putExtra("TYPE", "");
 		sendIntent.putExtra("SUCCESS", true);
@@ -1955,7 +1964,7 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 				if (sec.getMakeList().contains(make))
 				{
 					setSdlSecurity(sec);
-						sec.setAppId(_appID);
+						sec.setAppId(_shortAppID);
 						if (sdlSession != null)
 							sec.handleSdlSession(sdlSession);
 					return;
@@ -3649,7 +3658,8 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 						_sdlLanguageDesired,
 						_hmiDisplayLanguageDesired,
 						_appType,
-						_appID,
+						_shortAppID,
+						_fullAppId,
 						REGISTER_APP_INTERFACE_CORRELATION_ID);
 				
 			} catch (Exception e) {
@@ -5400,7 +5410,7 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 			@NonNull SdlMsgVersion sdlMsgVersion, @NonNull String appName, Vector<TTSChunk> ttsName,
 			String ngnMediaScreenAppName, Vector<String> vrSynonyms, @NonNull Boolean isMediaApp,
 			@NonNull Language languageDesired, @NonNull Language hmiDisplayLanguageDesired, Vector<AppHMIType> appType,
-			@NonNull String appID, Integer correlationID)
+			@NonNull String shortAppID, String fullAppID, Integer correlationID)
 			throws SdlException {
 		String carrierName = null;
 		if(telephonyManager != null){
@@ -5425,7 +5435,13 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 			hmiDisplayLanguageDesired = Language.EN_US;
 		}
 
-		RegisterAppInterface msg = new RegisterAppInterface(sdlMsgVersion, appName, isMediaApp, languageDesired, hmiDisplayLanguageDesired, appID);
+		RegisterAppInterface msg;
+		if (fullAppID == null) {
+			msg = new RegisterAppInterface(sdlMsgVersion, appName, isMediaApp, languageDesired, hmiDisplayLanguageDesired, shortAppID);
+		}
+		else {
+			msg = new RegisterAppInterface(sdlMsgVersion, appName, isMediaApp, languageDesired, hmiDisplayLanguageDesired, shortAppID, fullAppID);
+		}
 
 		if (correlationID != null) {
 			msg.setCorrelationID(correlationID);
@@ -6661,7 +6677,11 @@ public abstract class SdlProxyBase<proxyListenerType extends IProxyListenerBase>
 	@SuppressWarnings("unused")
 	public String getAppID()
 	{
-		return _appID;
+		return _shortAppID;
+	}
+	@SuppressWarnings("unused")
+	public String getFullAppID() {
+		return _fullAppId;
 	}
 	@SuppressWarnings("unused")
 	public DeviceInfo getDeviceInfo()

@@ -42,7 +42,8 @@ public class StreamRPCPacketizerTests extends TestCase {
 		byte            testWiproVersion = (byte) 0x0B;
 		MockInterfaceBroker _interfaceBroker = new MockInterfaceBroker();
 		BaseTransportConfig _transportConfig = new BTTransportConfig(true);
-		SdlSession testSdlSession = SdlSession.createSession(testWiproVersion,_interfaceBroker, _transportConfig);
+		SdlSession testSdlSession = SdlSession.createSession(testWiproVersion,_interfaceBroker,
+				_transportConfig, null, null);
 		try {
 			testInputStream = new BufferedInputStream(new ByteArrayInputStream("sdl streaming test".getBytes()));
 			StreamRPCPacketizer testStreamRpcPacketizer = new StreamRPCPacketizer(null, testListener, testInputStream, testRequest, testSessionType, testSessionId, testWV, testWV, testSdlSession);

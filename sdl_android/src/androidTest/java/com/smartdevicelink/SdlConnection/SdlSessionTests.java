@@ -37,7 +37,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnTransportEventUpdate() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		secondaryTransports.add("TCP_WIFI");
@@ -92,7 +93,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnTransportEventUpdateUSB() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		secondaryTransports.add("AOA_USB");
@@ -130,7 +132,8 @@ public class SdlSessionTests extends AndroidTestCase {
 
 	@Test
 	public void testOnEnableSecondaryTransportNonBT() {
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new TCPTransportConfig(8080,"",false));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				TCPTransportConfig(8080,"",false), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		ArrayList<Integer> audioTransports = new ArrayList<>();
@@ -156,7 +159,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnEnableSecondaryTransportMBT() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		secondaryTransports.add("TCP_WIFI");
@@ -203,7 +207,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnEnableSecondaryTransportDiff() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		secondaryTransports.add("TCP_WIFI");
@@ -226,7 +231,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnEnableSecondaryTransportNull() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		session.onEnableSecondaryTransport(SESSION_ID, null, null, null, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
@@ -291,7 +297,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnEnableSecondaryTransportUSB() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		ArrayList<Integer> audioTransports = new ArrayList<>();
@@ -383,7 +390,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testStartStreamingService() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 		ArrayList<String> secondaryTransports = new ArrayList<>();
 		secondaryTransports.add("TCP_WIFI");
@@ -399,7 +407,8 @@ public class SdlSessionTests extends AndroidTestCase {
 	@Test
 	public void testOnRegisterSecondaryTransportACK() {
 		Context testContext = getContext();
-		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new MultiplexTransportConfig(testContext, "testapp"));
+		SdlSession session =  SdlSession.createSession(WIPRO_VER, testListener, new
+				MultiplexTransportConfig(testContext, "testapp"), null, null);
 		session.onProtocolSessionStarted(SessionType.RPC, SESSION_ID, WIPRO_VER, "0", 1, false, TransportType.MULTIPLEX);
 
 		ArrayList<String> secondaryTransports = new ArrayList<>();

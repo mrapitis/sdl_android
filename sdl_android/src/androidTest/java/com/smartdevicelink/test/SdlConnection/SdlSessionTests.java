@@ -20,7 +20,8 @@ import java.util.Vector;
 public class SdlSessionTests extends TestCase {
 
 	public void testServiceListeners(){
-		SdlSession session =  SdlSession.createSession((byte)5,null, new TCPTransportConfig(8080,"",false));
+		SdlSession session =  SdlSession.createSession((byte)5,null, new TCPTransportConfig
+				(8080,"",false),null, null);
 		ISdlServiceListener test = new ISdlServiceListener() {
 			@Override
 			public void onServiceStarted(SdlSession session, SessionType type, boolean isEncrypted) {

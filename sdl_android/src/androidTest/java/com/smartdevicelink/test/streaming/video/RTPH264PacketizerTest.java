@@ -532,7 +532,8 @@ public class RTPH264PacketizerTest extends TestCase {
 	}
 
 	private SdlSession createTestSession() {
-		return SdlSession.createSession(WIPRO_VERSION, new MockInterfaceBroker(), new BTTransportConfig(true));
+		return SdlSession.createSession(WIPRO_VERSION, new MockInterfaceBroker(), new
+				BTTransportConfig(true), null, null);
 	}
 
 	private class StreamVerifier implements IStreamListener {

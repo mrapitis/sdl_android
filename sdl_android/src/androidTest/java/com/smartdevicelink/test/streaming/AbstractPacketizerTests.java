@@ -49,7 +49,8 @@ public class AbstractPacketizerTests extends TestCase {
 			testInputStream = new BufferedInputStream(new ByteArrayInputStream("sdl streaming test".getBytes()));
 			MockInterfaceBroker _interfaceBroker = new MockInterfaceBroker();
 			BaseTransportConfig _transportConfig = new BTTransportConfig(true);
-			testSdlSession = SdlSession.createSession(testWiproVersion,_interfaceBroker, _transportConfig);
+			testSdlSession = SdlSession.createSession(testWiproVersion,_interfaceBroker,
+					_transportConfig, null, null);
 			testPacketizer1 = new MockPacketizer(testListener, testInputStream, testSessionType, testSessionId, testSdlSession);
 			testPacketizer2 = new MockPacketizer(null, null, null, testSessionId, testSdlSession);
 			testPacketizer3 = new MockPacketizer(testListener, testInputStream, testRpcRequest, testSessionType, testSessionId, testWiproVersion, testSdlSession);

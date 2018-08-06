@@ -181,7 +181,8 @@ public class SdlSecurityBaseTest extends AndroidTestCase {
 		BaseTransportConfig transportConfig = new BTTransportConfig(true);
 		MockSdlSecurityBase mockSdlSecurityBase = new MockSdlSecurityBase();
 		
-		SdlSession testSdlSession = SdlSession.createSession(testWiproVersion,interfaceBroker, transportConfig);
+		SdlSession testSdlSession = SdlSession.createSession(testWiproVersion,interfaceBroker,
+				transportConfig, null, null);
 		
 		assertNotNull(Test.NOT_NULL, mockSdlSecurityBase);
 		assertNotNull(Test.NOT_NULL, testSdlSession);

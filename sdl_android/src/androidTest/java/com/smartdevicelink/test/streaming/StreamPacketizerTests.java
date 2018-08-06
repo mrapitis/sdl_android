@@ -131,7 +131,8 @@ public class StreamPacketizerTests extends TestCase {
 		IStreamListener testListener    = new MockStreamListener();
 		MockInterfaceBroker _interfaceBroker = new MockInterfaceBroker();
 		BaseTransportConfig _transportConfig = new BTTransportConfig(true);
-		SdlSession testSdlSession = SdlSession.createSession(testWiproVersion,_interfaceBroker, _transportConfig);
+		SdlSession testSdlSession = SdlSession.createSession(testWiproVersion,_interfaceBroker,
+				_transportConfig, null, null);
 		try {
 			testInputStream = new BufferedInputStream(new ByteArrayInputStream("sdl streaming test".getBytes()));
 			StreamPacketizer testStreamPacketizer = new StreamPacketizer(testListener, testInputStream, testSessionType, testSessionId, testSdlSession);
@@ -413,7 +414,8 @@ public class StreamPacketizerTests extends TestCase {
 
 
 	private SdlSession createTestSession() {
-		return SdlSession.createSession(WIPRO_VERSION, new MockInterfaceBroker(), new BTTransportConfig(true));
+		return SdlSession.createSession(WIPRO_VERSION, new MockInterfaceBroker(), new
+				BTTransportConfig(true), null, null);
 	}
 
 	private class StreamReceiver implements IStreamListener {

@@ -3,9 +3,17 @@ package com.smartdevicelink.transport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -17,7 +25,10 @@ import com.smartdevicelink.exception.SdlException;
 import com.smartdevicelink.exception.SdlExceptionCause;
 import com.smartdevicelink.protocol.SdlPacket;
 import com.smartdevicelink.protocol.enums.SessionType;
+import com.smartdevicelink.proxy.SdlProxyBuilder;
 import com.smartdevicelink.transport.enums.TransportType;
+import com.smartdevicelink.transport.utl.WiFiSocketFactory;
+
 
 /**
  * General comments:
@@ -49,6 +60,8 @@ import com.smartdevicelink.transport.enums.TransportType;
  */
 public class TCPTransport extends SdlTransport {
 
+    private Network mWifiOnlyNetwork;  // only used on Android 5 and later
+    private final Object mNetworkChangeLock = new Object();
     /**
      * Size of the read buffer.
      */
@@ -116,6 +129,8 @@ public class TCPTransport extends SdlTransport {
     public TCPTransport(TCPTransportConfig tcpTransportConfig, ITransportListener transportListener) {
         super(transportListener);
         this.mConfig = tcpTransportConfig;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        }
     }
 
     /**
@@ -407,7 +422,47 @@ public class TCPTransport extends SdlTransport {
                         }
 
                         logInfo(String.format("TCPTransport.connect: Socket is closed. Trying to connect to %s", mConfig));
-                        mSocket = new Socket();
+                        mSocket =  WiFiSocketFactory.createSocket(SdlProxyBuilder.servRef);//new Socket();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            // Bind the socket to Wi-Fi only network. This is required in the case a head unit
+                            // provides no Internet connectivity over Wi-Fi. (Without the binding, Android 5+
+                            // will initiate a connection over mobile network in such case.)
+                            synchronized (mNetworkChangeLock) {
+                                if (mWifiOnlyNetwork != null) {
+                                    mWifiOnlyNetwork.bindSocket(mSocket);
+                                }
+                            }
+                        }
+
+                       // final ConnectivityManager cm = (ConnectivityManager) SdlProxyBuilder.servRef.getSystemService(
+                      //          Context.CONNECTIVITY_SERVICE);
+                       // NetworkRequest.Builder req = new NetworkRequest.Builder();
+                       // req.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+                        //req.addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED);
+                        //req.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+
+/*                        ConnectivityManager.NetworkCallback networkCallback = new
+                                ConnectivityManager.NetworkCallback() {
+
+                                    @Override
+                                    public void onAvailable(Network network) {
+                                        try {
+                                         //   network.bindSocket(mSocket);
+                                         //   cm.bindProcessToNetwork(network);
+                                           mSocket = network.getSocketFactory().createSocket(mConfig.getIPAddress(), mConfig.getPort());
+                                            mOutputStream = mSocket.getOutputStream();
+                                            mInputStream = mSocket.getInputStream();
+                                            startWriteThread();
+                                        }
+                                        catch (Exception ex){
+                                            int z=100;
+                                            z++;
+                                        };
+                                    }
+                                };
+
+                        cm.requestNetwork(req.build(), networkCallback);*/
+
                         mSocket.connect(new InetSocketAddress(mConfig.getIPAddress(), mConfig.getPort()));
                         mOutputStream = mSocket.getOutputStream();
                         mInputStream = mSocket.getInputStream();
@@ -417,6 +472,8 @@ public class TCPTransport extends SdlTransport {
                     }
 
                     bConnected = (null != mSocket) && mSocket.isConnected();
+
+
 
                     if(bConnected){
                         logInfo("TCPTransport.connect: Socket connected");

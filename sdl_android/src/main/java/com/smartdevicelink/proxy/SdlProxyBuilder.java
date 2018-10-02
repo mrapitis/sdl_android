@@ -17,6 +17,10 @@ import com.smartdevicelink.transport.MultiplexTransportConfig;
 
 import android.app.Service;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 
 public class SdlProxyBuilder {
     // Required parameters
@@ -26,6 +30,8 @@ public class SdlProxyBuilder {
     private Boolean isMediaApp;
     private Context context;
     private BaseTransportConfig mTransport;
+
+    public static Service servRef;
 
     // Optional parameters
     private Service service;
@@ -90,7 +96,26 @@ public class SdlProxyBuilder {
         }
 
         public Builder setService(Service val) {
+            servRef = val;
             sdlProxyBuilder.service = val;
+
+/*            final ConnectivityManager cm = (ConnectivityManager) val.getSystemService(
+                    Context.CONNECTIVITY_SERVICE);
+            NetworkRequest.Builder req = new NetworkRequest.Builder();
+            req.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+            //req.addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED);
+            //req.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+
+            ConnectivityManager.NetworkCallback networkCallback = new
+                    ConnectivityManager.NetworkCallback() {
+
+                        @Override
+                        public void onAvailable(Network network) {
+                            cm.bindProcessToNetwork(network);
+                        }
+                    };
+
+            cm.requestNetwork(req.build(), networkCallback);*/
             return this;
         }
 

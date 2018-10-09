@@ -31,6 +31,7 @@ public class SdlProxyBuilder {
     private Context context;
     private BaseTransportConfig mTransport;
 
+    //temporary poc testing
     public static Service servRef;
 
     // Optional parameters
@@ -99,23 +100,6 @@ public class SdlProxyBuilder {
             servRef = val;
             sdlProxyBuilder.service = val;
 
-/*            final ConnectivityManager cm = (ConnectivityManager) val.getSystemService(
-                    Context.CONNECTIVITY_SERVICE);
-            NetworkRequest.Builder req = new NetworkRequest.Builder();
-            req.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-            //req.addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED);
-            //req.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-
-            ConnectivityManager.NetworkCallback networkCallback = new
-                    ConnectivityManager.NetworkCallback() {
-
-                        @Override
-                        public void onAvailable(Network network) {
-                            cm.bindProcessToNetwork(network);
-                        }
-                    };
-
-            cm.requestNetwork(req.build(), networkCallback);*/
             return this;
         }
 

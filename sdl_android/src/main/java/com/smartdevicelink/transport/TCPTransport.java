@@ -60,8 +60,6 @@ import com.smartdevicelink.transport.utl.WiFiSocketFactory;
  */
 public class TCPTransport extends SdlTransport {
 
-    private Network mWifiOnlyNetwork;  // only used on Android 5 and later
-    private final Object mNetworkChangeLock = new Object();
     /**
      * Size of the read buffer.
      */
@@ -129,8 +127,6 @@ public class TCPTransport extends SdlTransport {
     public TCPTransport(TCPTransportConfig tcpTransportConfig, ITransportListener transportListener) {
         super(transportListener);
         this.mConfig = tcpTransportConfig;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        }
     }
 
     /**
@@ -422,47 +418,7 @@ public class TCPTransport extends SdlTransport {
                         }
 
                         logInfo(String.format("TCPTransport.connect: Socket is closed. Trying to connect to %s", mConfig));
-                        mSocket =  WiFiSocketFactory.createSocket(SdlProxyBuilder.servRef);//new Socket();
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            // Bind the socket to Wi-Fi only network. This is required in the case a head unit
-                            // provides no Internet connectivity over Wi-Fi. (Without the binding, Android 5+
-                            // will initiate a connection over mobile network in such case.)
-                            synchronized (mNetworkChangeLock) {
-                                if (mWifiOnlyNetwork != null) {
-                                    mWifiOnlyNetwork.bindSocket(mSocket);
-                                }
-                            }
-                        }
-
-                       // final ConnectivityManager cm = (ConnectivityManager) SdlProxyBuilder.servRef.getSystemService(
-                      //          Context.CONNECTIVITY_SERVICE);
-                       // NetworkRequest.Builder req = new NetworkRequest.Builder();
-                       // req.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-                        //req.addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED);
-                        //req.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-
-/*                        ConnectivityManager.NetworkCallback networkCallback = new
-                                ConnectivityManager.NetworkCallback() {
-
-                                    @Override
-                                    public void onAvailable(Network network) {
-                                        try {
-                                         //   network.bindSocket(mSocket);
-                                         //   cm.bindProcessToNetwork(network);
-                                           mSocket = network.getSocketFactory().createSocket(mConfig.getIPAddress(), mConfig.getPort());
-                                            mOutputStream = mSocket.getOutputStream();
-                                            mInputStream = mSocket.getInputStream();
-                                            startWriteThread();
-                                        }
-                                        catch (Exception ex){
-                                            int z=100;
-                                            z++;
-                                        };
-                                    }
-                                };
-
-                        cm.requestNetwork(req.build(), networkCallback);*/
-
+                        mSocket =  WiFiSocketFactory.createSocket(SdlProxyBuilder.servRef);
                         mSocket.connect(new InetSocketAddress(mConfig.getIPAddress(), mConfig.getPort()));
                         mOutputStream = mSocket.getOutputStream();
                         mInputStream = mSocket.getInputStream();
@@ -472,8 +428,6 @@ public class TCPTransport extends SdlTransport {
                     }
 
                     bConnected = (null != mSocket) && mSocket.isConnected();
-
-
 
                     if(bConnected){
                         logInfo("TCPTransport.connect: Socket connected");
